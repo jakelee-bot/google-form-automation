@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/automate.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/automate",
+      "dest": "api/automate.py"
+    }
+  ],
+  "functions": {
+    "api/automate.py": {
+      "maxDuration": 60
+    }
+  },
+  "env": {
+    "PLAYWRIGHT_BROWSERS_PATH": "/tmp/playwright"
+  }
+}
