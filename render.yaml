@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: google-form-automation
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "python app.py"
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: PORT
+        value: 10000
