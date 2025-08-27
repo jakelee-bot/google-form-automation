@@ -1,3 +1,1 @@
-# Edit requirements.txt to contain only:
-playwright==1.40.0
-python-dotenv==1.0.0
+echo "python-dotenv==1.0.0" > requirements.txt
