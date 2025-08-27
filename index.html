@@ -1,40 +1,286 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Form Data Parser</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Data Parser - Extract Google Form Data</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        textarea { width: 100%; min-height: 300px; }
-        button { background: #0070f3; color: white; padding: 10px 20px; border: none; cursor: pointer; }
-        .result { background: #f4f4f4; padding: 20px; margin-top: 20px; white-space: pre-wrap; }
-        .error { color: red; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 250px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #result {
+            margin-top: 30px;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .result-container {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15anium;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-container h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-container h3::before {
+            content: "✨";
+            font-size: 1.2em;
+        }
+        
+        .data-grid {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .data-item {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .data-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .data-label {
+            font-weight: 600;
+            color: #667eea;
+            text-transform: capitalize;
+        }
+        
+        .data-value {
+            color: #333;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.95em;
+        }
+        
+        .next-steps {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .next-steps p {
+            margin: 0;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        
+        .error {
+            background: #ff5252;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            animation: shake 0.5s ease;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(102, 126, 234, 0.3);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>Google Form Data Parser</h1>
-    <p>Paste your message below and click Parse to extract the data:</p>
-    
-    <textarea id="message" placeholder="Your name: John Doe
+    <div class="container">
+        <div class="header">
+            <h1>Form Data Parser</h1>
+            <p>Extract structured data from your Google Form messages instantly</p>
+        </div>
+        
+        <div class="content">
+            <div class="input-section">
+                <label for="message">Paste your message below:</label>
+                <textarea id="message" placeholder="Your name: John Doe
 Your email: john@example.com
 Organization name: Acme Corp
+Organization sector: Academic
+How many people need Premium access? 5
+Length of license: 1
 ..."></textarea>
-    
-    <br><br>
-    <button onclick="parseData()">Parse Data</button>
-    
-    <div id="result"></div>
+            </div>
+            
+            <div class="button-container">
+                <button onclick="parseData()">Parse Data</button>
+            </div>
+            
+            <div id="result"></div>
+        </div>
+    </div>
     
     <script>
     async function parseData() {
         const message = document.getElementById('message').value;
         const resultDiv = document.getElementById('result');
         
-        if (!message) {
-            resultDiv.innerHTML = '<p class="error">Please enter a message</p>';
+        if (!message.trim()) {
+            resultDiv.innerHTML = '<div class="error">Please enter a message to parse</div>';
             return;
         }
         
-        resultDiv.innerHTML = '<p>Parsing...</p>';
+        resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Parsing your data...</p></div>';
         
         try {
             const response = await fetch('/api/parse', {
@@ -46,22 +292,56 @@ Organization name: Acme Corp
             const data = await response.json();
             
             if (data.success) {
-                let output = '<h3>Extracted Data:</h3><div class="result">';
+                let output = '<div class="result-container">';
+                output += '<h3>Extracted Data</h3>';
+                output += '<div class="data-grid">';
+                
+                const fieldNames = {
+                    name: 'Name',
+                    email: 'Email',
+                    alternate_email: 'Alternate Email',
+                    organization_name: 'Organization',
+                    organization_sector: 'Sector',
+                    num_premium_users: 'Premium Users',
+                    license_length_years: 'License Years',
+                    institution_name: 'Institution',
+                    admin_name: 'Admin Name',
+                    admin_email: 'Admin Email',
+                    billing_name: 'Billing Name',
+                    billing_email: 'Billing Email',
+                    billing_address: 'Billing Address',
+                    shipping_address: 'Shipping Address',
+                    vat_tax_id: 'VAT/Tax ID'
+                };
+                
                 for (const [key, value] of Object.entries(data.data)) {
                     if (value) {
-                        output += `${key}: ${value}\n`;
+                        output += `<div class="data-item">
+                            <span class="data-label">${fieldNames[key] || key}:</span>
+                            <span class="data-value">${value}</span>
+                        </div>`;
                     }
                 }
+                
                 output += '</div>';
-                output += '<p><strong>Next step:</strong> Copy this data and manually fill the Google Form</p>';
+                output += '<div class="next-steps"><p>✅ Data extracted successfully! Copy this information to fill out your Google Form.</p></div>';
+                output += '</div>';
+                
                 resultDiv.innerHTML = output;
             } else {
-                resultDiv.innerHTML = '<p class="error">Error parsing data</p>';
+                resultDiv.innerHTML = '<div class="error">Failed to parse data. Please check your message format.</div>';
             }
         } catch (error) {
-            resultDiv.innerHTML = '<p class="error">Error: ' + error.message + '</p>';
+            resultDiv.innerHTML = '<div class="error">Error: ' + error.message + '</div>';
         }
     }
+    
+    // Allow parsing with Enter key (Ctrl/Cmd + Enter)
+    document.getElementById('message').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+            parseData();
+        }
+    });
     </script>
 </body>
 </html>
