@@ -14,166 +14,220 @@ HTML_TEMPLATE = '''
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form Automation Suite</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         
+        :root {
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-card: rgba(255, 255, 255, 0.02);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: rgba(255, 255, 255, 0.95);
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-muted: rgba(255, 255, 255, 0.4);
+            --accent: #3b82f6;
+            --accent-hover: #60a5fa;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-            background: #0a0a0a;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
             min-height: 100vh;
-            color: #ffffff;
+            position: relative;
             overflow-x: hidden;
         }
         
-        /* Animated gradient background */
-        .gradient-bg {
+        /* Grid pattern background */
+        body::before {
+            content: '';
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(125deg, #0a0a0a 0%, #1a1a1a 25%, #2d2d2d 50%, #1a1a1a 75%, #0a0a0a 100%);
-            background-size: 400% 400%;
-            animation: gradient-shift 15s ease infinite;
-            z-index: -2;
-        }
-        
-        .noise {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.02;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            background-size: 50px 50px;
             z-index: -1;
-            pointer-events: none;
-            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgbnVtT2N0YXZlcz0iMTAiLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjYSkiIG9wYWNpdHk9IjEiLz48L3N2Zz4=');
         }
         
-        @keyframes gradient-shift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* Gradient orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.5;
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
+            top: -200genuinepx;
+            left: -200px;
+            animation-delay: 0s;
+        }
+        
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+            bottom: -150px;
+            right: -150px;
+            animation-delay: 5s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(100px, -100px) scale(1.1); }
+            50% { transform: translate(-100px, 100px) scale(0.9); }
+            75% { transform: translate(50px, 50px) scale(1.05); }
         }
         
         .container {
-            max-width: 800px;
+            max-width: 720px;
             margin: 0 auto;
             padding: 60px 20px;
             position: relative;
             z-index: 1;
         }
         
-        .card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 24px;
-            padding: 48px;
-            box-shadow: 
-                0 0 0 1px rgba(255, 255, 255, 0.1) inset,
-                0 20px 40px rgba(0, 0, 0, 0.5);
+        /* Logo */
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 48px;
+            gap: 12px;
         }
         
-        .header {
-            text-align: center;
-            margin-bottom: 48px;
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .logo-text {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        
+        /* Card */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+                0 20px 25px -5px rgba(0, 0, 0, 0.3),
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .card-header {
+            padding: 32px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.01);
+        }
+        
+        .card-body {
+            padding: 32px;
         }
         
         h1 {
-            font-size: 3.5rem;
-            font-weight: 200;
-            letter-spacing: -0.02em;
-            margin-bottom: 16px;
-            background: linear-gradient(135deg, #ffffff 0%, #888888 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
         
         .subtitle {
-            font-size: 1.125rem;
-            color: rgba(255, 255, 255, 0.6);
-            font-weight: 300;
+            color: var(--text-secondary);
+            font-size: 15px;
         }
         
+        /* Form elements */
         .form-group {
-            margin-bottom: 32px;
+            margin-bottom: 24px;
         }
         
         label {
             display: block;
-            font-size: 0.875rem;
+            font-size: 14px;
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
         }
         
         textarea {
             width: 100%;
-            min-height: 300px;
+            min-height: 280px;
             background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 20px;
-            font-size: 15px;
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-            color: rgba(255, 255, 255, 0.9);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 14px;
+            font-family: 'SF Mono', Monaco, monospace;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
             resize: vertical;
+        }
+        
+        textarea:hover {
+            border-color: rgba(255, 255, 255, 0.15);
         }
         
         textarea:focus {
             outline: none;
-            border-color: rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.04);
-            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
         textarea::placeholder {
-            color: rgba(255, 255, 255, 0.3);
+            color: var(--text-muted);
         }
         
+        /* Button */
         button {
-            position: relative;
             width: 100%;
-            padding: 20px 32px;
-            font-size: 16px;
-            font-weight: 500;
-            letter-spacing: 0.025em;
-            color: #000000;
-            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+            padding: 12px 24px;
+            background: var(--accent);
+            color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
+            position: relative;
             overflow: hidden;
         }
         
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
-            transform: translateX(-100%);
-            transition: transform 0.6s;
-        }
-        
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
-        }
-        
-        button:hover::before {
-            transform: translateX(100%);
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
         }
         
         button:active {
@@ -181,49 +235,41 @@ HTML_TEMPLATE = '''
         }
         
         button:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
         
-        .status {
-            margin-top: 32px;
-            padding: 20px 24px;
-            border-radius: 12px;
-            font-size: 15px;
-            line-height: 1.6;
-            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Status messages */
+        .alert {
+            margin-top: 24px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideUp 0.3s ease;
         }
         
-        .success {
+        .alert-success {
             background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
             border: 1px solid rgba(16, 185, 129, 0.2);
-            color: #10b981;
         }
         
-        .error {
+        .alert-error {
             background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
             border: 1px solid rgba(239, 68, 68, 0.2);
-            color: #ef4444;
         }
         
-        .loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(0, 0, 0, 0.2);
-            border-radius: 50%;
-            border-top-color: #000000;
-            animation: spin 1s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
+        .alert-icon {
+            font-size: 20px;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        @keyframes fadeIn {
+        @keyframes slideUp {
             from {
                 opacity: 0;
                 transform: translateY(10px);
@@ -234,99 +280,124 @@ HTML_TEMPLATE = '''
             }
         }
         
-        .hint {
+        /* Loading state */
+        .loading-dots {
+            display: inline-flex;
+            gap: 4px;
+        }
+        
+        .loading-dots span {
+            width: 6px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        /* Info box */
+        .info-box {
             margin-top: 16px;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .hint-title {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 8px;
-        }
-        
-        .hint-text {
+            padding: 12px;
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            border-radius: 6px;
             font-size: 13px;
-            color: rgba(255, 255, 255, 0.4);
-            line-height: 1.5;
+            color: var(--text-secondary);
         }
         
         @media (max-width: 640px) {
-            h1 {
-                font-size: 2.5rem;
+            .container {
+                padding: 40px 16px;
             }
             
-            .card {
-                padding: 32px 24px;
+            .card-header, .card-body {
+                padding: 24px 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="gradient-bg"></div>
-    <div class="noise"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
     
     <div class="container">
+        <div class="logo">
+            <div class="logo-icon">FA</div>
+            <div class="logo-text">Form Automation</div>
+        </div>
+        
         <div class="card">
-            <div class="header">
-                <h1>Form Automation</h1>
-                <p class="subtitle">Professional form filling powered by advanced automation</p>
+            <div class="card-header">
+                <h1>Automate Your Google Form</h1>
+                <p class="subtitle">Fill out forms instantly with our advanced automation system</p>
             </div>
             
-            <form method="POST" action="/submit" id="automationForm">
-                <div class="form-group">
-                    <label for="message">Form Data Input</label>
-                    <textarea 
-                        name="message" 
-                        id="message" 
-                        placeholder="Your name: John Doe
+            <div class="card-body">
+                <form method="POST" action="/submit" id="automationForm">
+                    <div class="form-group">
+                        <label for="message">Enter your form details</label>
+                        <textarea 
+                            name="message" 
+                            id="message" 
+                            placeholder="Your name: John Doe
 Your email: john@example.com
 Organization name: Acme Corporation
 Organization sector: Industry
 How many people need Premium access? 5
 Length of license: 2" 
-                        required
-                        spellcheck="false"
-                    ></textarea>
-                    
-                    <div class="hint">
-                        <div class="hint-title">Input Format</div>
-                        <div class="hint-text">Each field should be on a new line with the format: Field name: Value</div>
+                            required
+                            spellcheck="false"
+                        ></textarea>
+                        
+                        <div class="info-box">
+                            💡 Pro tip: Use the exact format shown above for best results
+                        </div>
                     </div>
-                </div>
+                    
+                    <button type="submit" id="submitBtn">
+                        <span id="btnText">Run Automation</span>
+                    </button>
+                </form>
                 
-                <button type="submit" id="submitBtn">
-                    <span id="btnText">Execute Automation</span>
-                </button>
-            </form>
-            
-            {% if status %}
-            <div class="status {{ status_type }}">
-                {{ status }}
+                {% if status %}
+                <div class="alert {{ 'alert-success' if status_type == 'success' else 'alert-error' }}">
+                    <span class="alert-icon">{{ '✓' if status_type == 'success' else '✕' }}</span>
+                    <span>{{ status }}</span>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
     </div>
     
     <script>
-    document.getElementById('automationForm').addEventListener('submit', function(e) {
-        const btn = document.getElementById('submitBtn');
-        const btnText = document.getElementById('btnText');
+    const form = document.getElementById('automationForm');
+    const btn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    
+    form.addEventListener('submit', function(e) {
         btn.disabled = true;
-        btnText.innerHTML = '<span class="loading"></span>Processing Request';
+        btnText.innerHTML = '<span class="loading-dots"><span></span><span></span><span></span></span> Processing';
     });
     
     // Auto-resize textarea
     const textarea = document.getElementById('message');
     textarea.addEventListener('input', function() {
         this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 500) + 'px';
+        this.style.height = Math.min(this.scrollHeight, 400) + 'px';
     });
     </script>
 </body>
@@ -351,10 +422,10 @@ def submit():
                 await bot.setup()
                 await bot.run_automation(message)
                 await bot.cleanup()
-                return True, "Form successfully submitted. The automation has completed the Google Form filling process."
+                return True, "Successfully submitted! Your form has been filled automatically."
             except Exception as e:
                 print(f"Automation error: {str(e)}")
-                return False, f"Automation failed: {str(e)}"
+                return False, f"Something went wrong: {str(e)}"
         
         success, status = loop.run_until_complete(run_automation())
         loop.close()
