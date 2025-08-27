@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Data Parser</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        textarea { width: 100%; min-height: 300px; }
+        button { background: #0070f3; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+        .result { background: #f4f4f4; padding: 20px; margin-top: 20px; white-space: pre-wrap; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Google Form Data Parser</h1>
+    <p>Paste your message below and click Parse to extract the data:</p>
+    
+    <textarea id="message" placeholder="Your name: John Doe
+Your email: john@example.com
+Organization name: Acme Corp
+..."></textarea>
+    
+    <br><br>
+    <button onclick="parseData()">Parse Data</button>
+    
+    <div id="result"></div>
+    
+    <script>
+    async function parseData() {
+        const message = document.getElementById('message').value;
+        const resultDiv = document.getElementById('result');
+        
+        if (!message) {
+            resultDiv.innerHTML = '<p class="error">Please enter a message</p>';
+            return;
+        }
+        
+        resultDiv.innerHTML = '<p>Parsing...</p>';
+        
+        try {
+            const response = await fetch('/api/parse', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                let output = '<h3>Extracted Data:</h3><div class="result">';
+                for (const [key, value] of Object.entries(data.data)) {
+                    if (value) {
+                        output += `${key}: ${value}\n`;
+                    }
+                }
+                output += '</div>';
+                output += '<p><strong>Next step:</strong> Copy this data and manually fill the Google Form</p>';
+                resultDiv.innerHTML = output;
+            } else {
+                resultDiv.innerHTML = '<p class="error">Error parsing data</p>';
+            }
+        } catch (error) {
+            resultDiv.innerHTML = '<p class="error">Error: ' + error.message + '</p>';
+        }
+    }
+    </script>
+</body>
+</html>
