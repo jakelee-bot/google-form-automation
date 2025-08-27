@@ -41,20 +41,38 @@ def home():
 def submit():
     message = request.form.get('message', '')
     
-    async def run_automation():
-        bot = GoogleFormBot(headless=True, page_by_page=False)
-        try:
-            await bot.setup()
-            await bot.run_automation(message)
-            await bot.cleanup()
-            return True, "Form submitted successfully!"
-        except Exception as e:
-            return False, f"Error: {str(e)}"
-    
-    # Run the async function
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    success, status = loop.run_until_complete(run_automation())
+    try:
+        # Create new event loop for thread
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        async def run_automation():
+            bot = GoogleFormBot(headless=True, page_by_page=False)
+            try:
+                await bot.setup()
+                await bot.run_automation(message)
+                await bot.cleanup()
+                return True, "Form submitted successfully!"
+            except Exception as e:
+                print(f"Automation error: {str(e)}")
+                return False, f"Error: {str(e)}"
+        
+        success, status = loop.run_until_complete(run_automation())
+        loop.close()
+        
+        return render_template_string(
+            HTML_TEMPLATE, 
+            status=status,
+            status_type='success' if success else 'error'
+        )
+    except Exception as e:
+        print(f"Route error: {str(e)}")
+        return render_template_string(
+            HTML_TEMPLATE, 
+            status=f"Server error: {str(e)}",
+            status_type='error'
+        )
     
     return render_template_string(
         HTML_TEMPLATE, 
@@ -65,4 +83,5 @@ def submit():
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port)
+    print(f"Starting server on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=False)
