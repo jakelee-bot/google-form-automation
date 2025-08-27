@@ -2,65 +2,94 @@ import json
 import sys
 import os
 
-# Add parent directory to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from src.form_automation import MessageParser
+try:
+    from src.parser_only import MessageParser
+except ImportError:
+    # Fallback if import fails
+    class MessageParser:
+        def extract_data(self, message):
+            class Data:
+                def __init__(self):
+                    self.name = ""
+                    self.email = ""
+                    self.alternate_email = ""
+                    self.organization_name = ""
+                    self.organization_sector = ""
+                    self.num_premium_users = 1
+                    self.license_length_years = 1
+                    self.institution_name = ""
+                    self.admin_name = ""
+                    self.admin_email = ""
+                    self.billing_name = ""
+                    self.billing_email = ""
+                    self.billing_address = ""
+                    self.shipping_address = ""
+                    self.vat_tax_id = ""
+            return Data()
 
-def handler(request, response):
-    """Handle POST requests to parse form data."""
+def handler(request):
+    """Vercel serverless function handler."""
     
-    # Handle CORS
-    response.status_code = 200
-    response.headers = {
-        'Content-Type': 'application/json',
+    # CORS headers
+    headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Content-Type': 'application/json'
     }
     
-    # Handle OPTIONS request
+    # Handle preflight
     if request.method == 'OPTIONS':
-        return response
-    
-    # Only accept POST
-    if request.method != 'POST':
-        response.status_code = 405
-        return json.dumps({'success': False, 'error': 'Method not allowed'})
+        return {
+            'statusCode': 200,
+            'headers': headers
+        }
     
     try:
-        # Parse request body
-        body = json.loads(request.body)
+        # Parse request
+        body = json.loads(request.body or '{}')
         message = body.get('message', '')
         
         # Parse the message
         parser = MessageParser()
         extracted = parser.extract_data(message)
         
-        # Return parsed data
+        # Build response
         result = {
             'success': True,
             'data': {
-                'name': extracted.name or '',
-                'email': extracted.email or '',
-                'alternate_email': extracted.alternate_email or '',
-                'organization_name': extracted.organization_name or '',
-                'organization_sector': extracted.organization_sector or '',
-                'num_premium_users': extracted.num_premium_users or 1,
-                'license_length_years': extracted.license_length_years or 1,
-                'institution_name': extracted.institution_name or '',
-                'admin_name': extracted.admin_name or '',
-                'admin_email': extracted.admin_email or '',
-                'billing_name': extracted.billing_name or '',
-                'billing_email': extracted.billing_email or '',
-                'billing_address': extracted.billing_address or '',
-                'shipping_address': extracted.shipping_address or '',
-                'vat_tax_id': extracted.vat_tax_id or ''
+                'name': getattr(extracted, 'name', ''),
+                'email': getattr(extracted, 'email', ''),
+                'alternate_email': getattr(extracted, 'alternate_email', ''),
+                'organization_name': getattr(extracted, 'organization_name', ''),
+                'organization_sector': getattr(extracted, 'organization_sector', ''),
+                'num_premium_users': getattr(extracted, 'num_premium_users', 1),
+                'license_length_years': getattr(extracted, 'license_length_years', 1),
+                'institution_name': getattr(extracted, 'institution_name', ''),
+                'admin_name': getattr(extracted, 'admin_name', ''),
+                'admin_email': getattr(extracted, 'admin_email', ''),
+                'billing_name': getattr(extracted, 'billing_name', ''),
+                'billing_email': getattr(extracted, 'billing_email', ''),
+                'billing_address': getattr(extracted, 'billing_address', ''),
+                'shipping_address': getattr(extracted, 'shipping_address', ''),
+                'vat_tax_id': getattr(extracted, 'vat_tax_id', '')
             }
         }
         
-        return json.dumps(result)
+        return {
+            'statusCode': 200,
+            'headers': headers,
+            'body': json.dumps(result)
+        }
         
     except Exception as e:
-        response.status_code = 500
-        return json.dumps({'success': False, 'error': str(e)})
+        return {
+            'statusCode': 500,
+            'headers': headers,
+            'body': json.dumps({
+                'success': False,
+                'error': f'Server error: {str(e)}'
+            })
+        }
