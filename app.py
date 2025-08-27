@@ -12,7 +12,7 @@ HTML_TEMPLATE = '''
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Form Automation</title>
+    <title>Form Automation Suite</title>
     <style>
         * {
             margin: 0;
@@ -21,98 +21,159 @@ HTML_TEMPLATE = '''
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        
+        /* Animated gradient background */
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(125deg, #0a0a0a 0%, #1a1a1a 25%, #2d2d2d 50%, #1a1a1a 75%, #0a0a0a 100%);
+            background-size: 400% 400%;
+            animation: gradient-shift 15s ease infinite;
+            z-index: -2;
+        }
+        
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.02;
+            z-index: -1;
+            pointer-events: none;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgbnVtT2N0YXZlcz0iMTAiLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjYSkiIG9wYWNpdHk9IjEiLz48L3N2Zz4=');
+        }
+        
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         
         .container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 600px;
-            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+                0 20px 40px rgba(0, 0, 0, 0.5);
         }
         
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 40px;
             text-align: center;
-            color: white;
+            margin-bottom: 48px;
         }
         
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 700;
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 200;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-        
-        .form-container {
-            padding: 40px;
+        .subtitle {
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 300;
         }
         
         .form-group {
-            margin-bottom: 30px;
+            margin-bottom: 32px;
         }
         
         label {
             display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #333;
-            font-size: 1.1em;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
         textarea {
             width: 100%;
-            min-height: 250px;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            font-family: 'Monaco', 'Menlo', monospace;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
+            min-height: 300px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            font-size: 15px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            color: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             resize: vertical;
         }
         
         textarea:focus {
             outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
+        }
+        
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.3);
         }
         
         button {
-            width: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 18px 40px;
-            font-size: 18px;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             position: relative;
+            width: 100%;
+            padding: 20px 32px;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 0.025em;
+            color: #000000;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
         }
         
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+        }
+        
+        button:hover::before {
+            transform: translateX(100%);
         }
         
         button:active {
@@ -120,38 +181,41 @@ HTML_TEMPLATE = '''
         }
         
         button:disabled {
-            opacity: 0.7;
+            opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
         
         .status {
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            animation: slideIn 0.5s ease;
+            margin-top: 32px;
+            padding: 20px 24px;
+            border-radius: 12px;
+            font-size: 15px;
+            line-height: 1.6;
+            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .success {
-            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-            color: #1a5f3f;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #10b981;
         }
         
         .error {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            color: #721c24;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
         }
         
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid white;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
             border-radius: 50%;
-            border-top-color: transparent;
+            border-top-color: #000000;
             animation: spin 1s linear infinite;
-            margin-right: 10px;
+            margin-right: 8px;
             vertical-align: middle;
         }
         
@@ -159,10 +223,10 @@ HTML_TEMPLATE = '''
             to { transform: rotate(360deg); }
         }
         
-        @keyframes slideIn {
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(10px);
             }
             to {
                 opacity: 1;
@@ -170,50 +234,75 @@ HTML_TEMPLATE = '''
             }
         }
         
-        .example {
-            background: #f0f0f0;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 10px;
+        .hint {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         
-        @media (max-width: 600px) {
-            .header h1 {
-                font-size: 2em;
+        .hint-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 8px;
+        }
+        
+        .hint-text {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.4);
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 2.5rem;
             }
             
-            .form-container {
-                padding: 20px;
+            .card {
+                padding: 32px 24px;
             }
         }
     </style>
 </head>
 <body>
+    <div class="gradient-bg"></div>
+    <div class="noise"></div>
+    
     <div class="container">
-        <div class="header">
-            <h1>🚀 Form Automation</h1>
-            <p>Automatically fill your Google Form in seconds</p>
-        </div>
-        
-        <div class="form-container">
+        <div class="card">
+            <div class="header">
+                <h1>Form Automation</h1>
+                <p class="subtitle">Professional form filling powered by advanced automation</p>
+            </div>
+            
             <form method="POST" action="/submit" id="automationForm">
                 <div class="form-group">
-                    <label for="message">Paste your form details:</label>
-                    <textarea name="message" id="message" placeholder="Your name: John Doe
+                    <label for="message">Form Data Input</label>
+                    <textarea 
+                        name="message" 
+                        id="message" 
+                        placeholder="Your name: John Doe
 Your email: john@example.com
-Organization name: Acme Corp
-Organization sector: Academic
+Organization name: Acme Corporation
+Organization sector: Industry
 How many people need Premium access? 5
-Length of license: 1" required></textarea>
-                    <div class="example">
-                        💡 Tip: Use the exact format shown above for best results
+Length of license: 2" 
+                        required
+                        spellcheck="false"
+                    ></textarea>
+                    
+                    <div class="hint">
+                        <div class="hint-title">Input Format</div>
+                        <div class="hint-text">Each field should be on a new line with the format: Field name: Value</div>
                     </div>
                 </div>
                 
                 <button type="submit" id="submitBtn">
-                    <span id="btnText">Fill Form Automatically</span>
+                    <span id="btnText">Execute Automation</span>
                 </button>
             </form>
             
@@ -230,14 +319,14 @@ Length of license: 1" required></textarea>
         const btn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
         btn.disabled = true;
-        btnText.innerHTML = '<span class="loading"></span>Processing...';
+        btnText.innerHTML = '<span class="loading"></span>Processing Request';
     });
     
     // Auto-resize textarea
     const textarea = document.getElementById('message');
     textarea.addEventListener('input', function() {
         this.style.height = 'auto';
-        this.style.height = this.scrollHeight + 'px';
+        this.style.height = Math.min(this.scrollHeight, 500) + 'px';
     });
     </script>
 </body>
@@ -253,7 +342,6 @@ def submit():
     message = request.form.get('message', '')
     
     try:
-        # Create new event loop for thread
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         
@@ -263,10 +351,10 @@ def submit():
                 await bot.setup()
                 await bot.run_automation(message)
                 await bot.cleanup()
-                return True, "✅ Form submitted successfully! The automation has filled out your Google Form."
+                return True, "Form successfully submitted. The automation has completed the Google Form filling process."
             except Exception as e:
                 print(f"Automation error: {str(e)}")
-                return False, f"❌ Error: {str(e)}"
+                return False, f"Automation failed: {str(e)}"
         
         success, status = loop.run_until_complete(run_automation())
         loop.close()
@@ -280,7 +368,7 @@ def submit():
         print(f"Route error: {str(e)}")
         return render_template_string(
             HTML_TEMPLATE, 
-            status=f"❌ Server error: {str(e)}",
+            status=f"System error: {str(e)}",
             status_type='error'
         )
 
