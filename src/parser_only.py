@@ -139,22 +139,79 @@ class MessageParser:
         
         # Extract individual users for 1-2 person licenses
         if data.user_names_emails and data.num_premium_users <= 2:
-            emails = re.findall(r'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})', data.user_names_emails)
+            self._extract_individual_users(data)
+                    
+    def _normalize_key(self, key: str) -> str:
+        """Normalize a key for matching by removing special characters and lowercasing."""
+        # Remove parenthetical content first
+        key = re.sub(r'\([^)]*\)', '', key)
+        # Remove special characters but keep spaces
+        key = re.sub(r'[^a-zA-Z0-9\s]', '', key)
+        # Convert to lowercase and remove extra spaces
+        key = ' '.join(key.lower().split())
+        return key
+
+    def _parse_unstructured(self, message: str, data: FormData) -> None:
+        """Parse unstructured message format."""
+        logger.info("Parsing as unstructured message...")
+        
+        # Extract all emails first
+        email_pattern = r'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})'
+        emails = re.findall(email_pattern, message)
+        
+        if emails:
+            data.email = emails[0]
+            logger.info(f"Extracted primary email: {data.email}")
             
-            if data.num_premium_users == 1:
-                data.first_user_name = data.name
-                data.first_user_email = data.email
-            elif data.num_premium_users == 2:
-                data.first_user_name = data.name
-                data.first_user_email = data.email
-                
-                # Find second user
-                for email in emails:
-                    if email.lower() != data.email.lower():
-                        data.second_user_email = email
-                        # Extract name
-                        remaining = data.user_names_emails.replace(email, '').strip()
-                        name_match = re.search(r'([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)', remaining)
-                        if name_match:
-                            data.second_user_name = name_match.group(1)
-                        break
+            # Look for alternate email indicators
+            alt_email_patterns = [
+                r'send\s+(?:quote\s+)?to[:\s]+' + email_pattern,
+                r'alternate\s+email[:\s]+' + email_pattern,
+                r'cc[:\s]+' + email_pattern
+            ]
+            
+            for pattern in alt_email_patterns:
+                match = re.search(pattern, message, re.IGNORECASE)
+                if match:
+                    data.alternate_email = match.group(1)
+                    logger.info(f"Extracted alternate email: {data.alternate_email}")
+                    break
+        
+        # Extract names, organizations, etc...
+        # (add the rest of the unstructured parsing logic here)
+
+    def _extract_individual_users(self, data: FormData) -> None:
+        """Extract individual user names and emails from the user list."""
+        if not data.user_names_emails:
+            return
+        
+        # Extract all emails
+        emails = re.findall(r'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})', data.user_names_emails)
+        
+        # For single user
+        if data.num_premium_users == 1:
+            data.first_user_name = data.name
+            data.first_user_email = data.email
+        
+        # For two users
+        elif data.num_premium_users == 2:
+            data.first_user_name = data.name
+            data.first_user_email = data.email
+            
+            # Find second user
+            for email in emails:
+                if email.lower() != data.email.lower():
+                    data.second_user_email = email
+                    
+                    # Extract name by removing email and cleaning
+                    remaining_text = data.user_names_emails.replace(email, '')
+                    # Remove the primary user's name if present
+                    if data.name:
+                        remaining_text = remaining_text.replace(data.name, '')
+                    
+                    # Clean and extract name
+                    name_match = re.search(r'([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)', remaining_text)
+                    if name_match:
+                        data.second_user_name = name_match.group(1).strip()
+                        logger.info(f"Extracted second user: {data.second_user_name} <{data.second_user_email}>")
+                    break
