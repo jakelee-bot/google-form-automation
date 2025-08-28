@@ -95,7 +95,7 @@ HTML_TEMPLATE = '''
         }
         
         .container {
-            max-width: 720px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 60px 20px;
             position: relative;
@@ -155,6 +155,13 @@ HTML_TEMPLATE = '''
             margin-bottom: 8px;
         }
         
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+        
         .subtitle {
             color: var(--text-secondary);
             font-size: 15px;
@@ -177,25 +184,25 @@ HTML_TEMPLATE = '''
             color: var(--text-secondary);
         }
         
-        textarea {
+        textarea, input[type="text"], input[type="email"], input[type="number"], select {
             width: 100%;
-            min-height: 320px;
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 16px;
+            padding: 12px 16px;
             font-size: 14px;
-            font-family: 'SF Mono', Monaco, monospace;
+            font-family: 'Inter', sans-serif;
             color: var(--text-primary);
             transition: all 0.2s ease;
+        }
+        
+        textarea {
+            min-height: 200px;
             resize: vertical;
+            font-family: 'SF Mono', Monaco, monospace;
         }
         
-        textarea:hover {
-            border-color: rgba(255, 255, 255, 0.15);
-        }
-        
-        textarea:focus {
+        input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: var(--biorender-blue);
             background: rgba(0, 102, 255, 0.05);
@@ -228,44 +235,97 @@ HTML_TEMPLATE = '''
             transform: none;
         }
         
-        /* Loading dots */
-        .loading-dots {
-            display: inline-flex;
-            gap: 4px;
+        .button-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            margin-right: 12px;
         }
         
-        .loading-dots span {
-            width: 6px;
-            height: 6px;
-            background: currentColor;
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out;
+        .button-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
         }
         
-        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
-        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+        /* Two column layout */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
         
-        @keyframes bounce {
-            0%, 80%, 100% {
-                transform: scale(0);
-                opacity: 0.5;
-            }
-            40% {
-                transform: scale(1);
-                opacity: 1;
+        @media (max-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr;
             }
         }
         
-        /* Status */
-        .alert {
+        /* Results section */
+        .extracted-data {
+            background: rgba(0, 102, 255, 0.05);
+            border: 1px solid rgba(0, 102, 255, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .data-field {
+            margin-bottom: 20px;
+        }
+        
+        .data-field:last-child {
+            margin-bottom: 0;
+        }
+        
+        .field-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            letter-spacing: 0.05em;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 12px;
             margin-top: 24px;
+        }
+        
+        .button-group button {
+            flex: 1;
+        }
+        
+        /* Hidden sections */
+        .hidden {
+            display: none;
+        }
+        
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--biorender-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Status messages */
+        .alert {
             padding: 16px;
             border-radius: 8px;
-            font-size: 14px;
+            margin-bottom: 24px;
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             gap: 12px;
-            animation: slideUp 0.3s ease;
         }
         
         .alert-success {
@@ -278,40 +338,6 @@ HTML_TEMPLATE = '''
             background: rgba(239, 68, 68, 0.1);
             color: var(--error);
             border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-        }
-        
-        /* Template helper */
-        .template-box {
-            margin-top: 16px;
-            padding: 16px;
-            background: rgba(0, 102, 255, 0.05);
-            border: 1px solid rgba(0, 102, 255, 0.1);
-            border-radius: 8px;
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-        
-        .template-box details {
-            cursor: pointer;
-        }
-        
-        .template-box summary {
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-        }
-        
-        .template-content {
-            font-family: 'SF Mono', Monaco, monospace;
-            line-height: 1.8;
-            white-space: pre-line;
         }
     </style>
 </head>
@@ -326,82 +352,295 @@ HTML_TEMPLATE = '''
         </div>
         
         <div class="card">
-            <div class="card-header">
-                <h1>Automate Your Google Form</h1>
-                <p class="subtitle">Fill out forms instantly with our advanced automation system</p>
-            </div>
-            
-            <div class="card-body">
-                <form method="POST" action="/submit" id="automationForm">
+            <!-- Step 1: Input Email -->
+            <div id="step1" class="step">
+                <div class="card-header">
+                    <h1>Extract Form Data from Email</h1>
+                    <p class="subtitle">Paste your email and we'll extract the form information</p>
+                </div>
+                
+                <div class="card-body">
                     <div class="form-group">
-                        <label for="message">Enter your form details</label>
+                        <label for="emailInput">Paste your email here</label>
                         <textarea 
-                            name="message" 
-                            id="message" 
-                            placeholder="Your name: John Doe
-Your email: john@example.com
-Organization name: Acme Corporation
-Organization sector: Industry
-How many people need Premium access?: 5
-Length of license (in years): 2" 
-                            required
-                            spellcheck="false"
+                            id="emailInput" 
+                            placeholder="Paste the entire email containing form details..."
+                            rows="10"
                         ></textarea>
-                        
-                        <div class="template-box">
-                            <details>
-                                <summary>📋 View complete template</summary>
-                                <div class="template-content">Your name:
-Your email:
-Alternate email (optional; if the quote should be sent elsewhere):
-Organization name:
-Organization sector (Academic or Industry):
-How many people need Premium access?:
-Length of license (in years):
-Name of institution, enterprise, lab, or team (optional; leave blank to use your organization name):
-Names and emails of intended users (optional; leave blank to use your own email or it is a license just for yourself):
-Admin name (optional; leave blank to use your name):
-Admin email (optional; leave blank to use your email):
-Billing name (optional):
-Billing email (optional):
-Billing address (optional):
-Shipping address (optional):
-VAT or Tax ID number (optional):</div>
-                            </details>
-                        </div>
                     </div>
                     
-                    <button type="submit" id="submitBtn">
-                        <span id="btnText">Run Automation</span>
-                    </button>
-                </form>
-                
-                {% if status %}
-                <div class="alert {{ 'alert-success' if status_type == 'success' else 'alert-error' }}">
-                    <span>{{ '✓' if status_type == 'success' else '✕' }}</span>
-                    <span>{{ status }}</span>
+                    <button onclick="parseEmail()">Extract Information</button>
                 </div>
-                {% endif %}
+            </div>
+            
+            <!-- Step 2: Review and Edit -->
+            <div id="step2" class="step hidden">
+                <div class="card-header">
+                    <h1>Review Extracted Information</h1>
+                    <p class="subtitle">Verify and edit the extracted data before submitting</p>
+                </div>
+                
+                <div class="card-body">
+                    <form id="reviewForm">
+                        <div class="extracted-data">
+                            <h2>Contact Information</h2>
+                            <div class="form-grid">
+                                <div class="data-field">
+                                    <div class="field-label">Your Name</div>
+                                    <input type="text" id="name" name="name">
+                                </div>
+                                <div class="data-field">
+                                    <div class="field-label">Your Email</div>
+                                    <input type="email" id="email" name="email">
+                                </div>
+                            </div>
+                            
+                            <div class="data-field">
+                                <div class="field-label">Alternate Email (optional)</div>
+                                <input type="email" id="alternate_email" name="alternate_email">
+                            </div>
+                        </div>
+                        
+                        <div class="extracted-data">
+                            <h2>Organization Details</h2>
+                            <div class="form-grid">
+                                <div class="data-field">
+                                    <div class="field-label">Organization Name</div>
+                                    <input type="text" id="organization_name" name="organization_name">
+                                </div>
+                                <div class="data-field">
+                                    <div class="field-label">Organization Sector</div>
+                                    <select id="organization_sector" name="organization_sector">
+                                        <option value="Academic">Academic</option>
+                                        <option value="Industry">Industry</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="data-field">
+                                    <div class="field-label">Number of Premium Users</div>
+                                    <input type="number" id="num_premium_users" name="num_premium_users" min="1">
+                                </div>
+                                <div class="data-field">
+                                    <div class="field-label">License Length (years)</div>
+                                    <input type="number" id="license_length_years" name="license_length_years" min="1">
+                                </div>
+                            </div>
+                            
+                            <div class="data-field">
+                                <div class="field-label">Institution/Lab/Team Name (optional)</div>
+                                <input type="text" id="institution_name" name="institution_name">
+                            </div>
+                        </div>
+                        
+                        <div class="extracted-data">
+                            <h2>User Details</h2>
+                            <div class="data-field">
+                                <div class="field-label">Names and Emails of Intended Users (optional)</div>
+                                <textarea id="user_names_emails" name="user_names_emails" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="data-field">
+                                    <div class="field-label">Admin Name (optional)</div>
+                                    <input type="text" id="admin_name" name="admin_name">
+                                </div>
+                                <div class="data-field">
+                                    <div class="field-label">Admin Email (optional)</div>
+                                    <input type="email" id="admin_email" name="admin_email">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="extracted-data">
+                            <h2>Billing Information</h2>
+                            <div class="form-grid">
+                                <div class="data-field">
+                                    <div class="field-label">Billing Name (optional)</div>
+                                    <input type="text" id="billing_name" name="billing_name">
+                                </div>
+                                <div class="data-field">
+                                    <div class="field-label">Billing Email (optional)</div>
+                                    <input type="email" id="billing_email" name="billing_email">
+                                </div>
+                            </div>
+                            
+                            <div class="data-field">
+                                <div class="field-label">Billing Address (optional)</div>
+                                <textarea id="billing_address" name="billing_address" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="data-field">
+                                <div class="field-label">Shipping Address (optional)</div>
+                                <textarea id="shipping_address" name="shipping_address" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="data-field">
+                                <div class="field-label">VAT or Tax ID Number (optional)</div>
+                                <input type="text" id="vat_tax_id" name="vat_tax_id">
+                            </div>
+                        </div>
+                        
+                        <div class="button-group">
+                            <button type="button" class="button-secondary" onclick="goBack()">Go Back</button>
+                            <button type="submit">Submit to Form</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Step 3: Processing -->
+            <div id="step3" class="step hidden">
+                <div class="card-body">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 20px;">Processing your form submission...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 4: Result -->
+            <div id="step4" class="step hidden">
+                <div class="card-header">
+                    <h1>Form Submission Complete</h1>
+                </div>
+                <div class="card-body">
+                    <div id="resultMessage"></div>
+                    <button onclick="startOver()" style="margin-top: 24px;">Submit Another Form</button>
+                </div>
             </div>
         </div>
     </div>
     
     <script>
-    const form = document.getElementById('automationForm');
-    const btn = document.getElementById('submitBtn');
-    const btnText = document.getElementById('btnText');
+    function showStep(stepNumber) {
+        document.querySelectorAll('.step').forEach(step => {
+            step.classList.add('hidden');
+        });
+        document.getElementById('step' + stepNumber).classList.remove('hidden');
+    }
     
-    form.addEventListener('submit', function(e) {
-        btn.disabled = true;
-        btnText.innerHTML = '<span class="loading-dots"><span></span><span></span><span></span></span> Processing';
+    async function parseEmail() {
+        const emailContent = document.getElementById('emailInput').value;
+        
+        if (!emailContent.trim()) {
+            alert('Please paste an email to extract information from.');
+            return;
+        }
+        
+        // Show loading
+        showStep(3);
+        
+        try {
+            const response = await fetch('/parse', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: emailContent })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Populate form fields with extracted data
+                populateForm(data.data);
+                showStep(2);
+            } else {
+                alert('Failed to parse email: ' + data.error);
+                showStep(1);
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+            showStep(1);
+        }
+    }
+    
+    function populateForm(data) {
+        // Populate all form fields with extracted data
+        for (const [key, value] of Object.entries(data)) {
+            const field = document.getElementById(key);
+            if (field) {
+                field.value = value || '';
+            }
+        }
+    }
+    
+    function goBack() {
+        showStep(1);
+    }
+    
+    function startOver() {
+        document.getElementById('emailInput').value = '';
+        document.getElementById('reviewForm').reset();
+        showStep(1);
+    }
+    
+    // Handle form submission
+    document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Collect all form data
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
+        
+        // Build the structured message
+        const message = buildFormMessage(data);
+        
+        // Show processing
+        showStep(3);
+        
+        try {
+            const response = await fetch('/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'message=' + encodeURIComponent(message)
+            });
+            
+            const html = await response.text();
+            
+            // Extract success/error message from response
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const alert = doc.querySelector('.alert');
+            
+            if (alert) {
+                document.getElementById('resultMessage').innerHTML = alert.outerHTML;
+            } else {
+                document.getElementById('resultMessage').innerHTML = 
+                    '<div class="alert alert-success">Form submitted successfully!</div>';
+            }
+            
+            showStep(4);
+        } catch (error) {
+            document.getElementById('resultMessage').innerHTML = 
+                '<div class="alert alert-error">Error: ' + error.message + '</div>';
+            showStep(4);
+        }
     });
     
-    // Auto-resize textarea
-    const textarea = document.getElementById('message');
-    textarea.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 500) + 'px';
-    });
+    function buildFormMessage(data) {
+        // Build structured message from form data
+        const lines = [];
+        
+        if (data.name) lines.push('Your name: ' + data.name);
+        if (data.email) lines.push('Your email: ' + data.email);
+        if (data.alternate_email) lines.push('Alternate email: ' + data.alternate_email);
+        if (data.organization_name) lines.push('Organization name: ' + data.organization_name);
+        if (data.organization_sector) lines.push('Organization sector: ' + data.organization_sector);
+        if (data.num_premium_users) lines.push('How many people need Premium access?: ' + data.num_premium_users);
+        if (data.license_length_years) lines.push('Length of license (in years): ' + data.license_length_years);
+        if (data.institution_name) lines.push('Name of institution: ' + data.institution_name);
+        if (data.user_names_emails) lines.push('Names and emails of intended users: ' + data.user_names_emails);
+        if (data.admin_name) lines.push('Admin name: ' + data.admin_name);
+        if (data.admin_email) lines.push('Admin email: ' + data.admin_email);
+        if (data.billing_name) lines.push('Billing name: ' + data.billing_name);
+        if (data.billing_email) lines.push('Billing email: ' + data.billing_email);
+        if (data.billing_address) lines.push('Billing address: ' + data.billing_address);
+        if (data.shipping_address) lines.push('Shipping address: ' + data.shipping_address);
+        if (data.vat_tax_id) lines.push('VAT or Tax ID number: ' + data.vat_tax_id);
+        
+        return lines.join('\n');
+    }
     </script>
 </body>
 </html>
@@ -411,8 +650,46 @@ VAT or Tax ID number (optional):</div>
 def home():
     return render_template_string(HTML_TEMPLATE)
 
+@app.route('/parse', methods=['POST'])
+def parse():
+    """Parse email content and extract form data"""
+    try:
+        data = request.get_json()
+        message = data.get('message', '')
+        
+        parser = MessageParser()
+        extracted = parser.extract_data(message)
+        
+        return jsonify({
+            'success': True,
+            'data': {
+                'name': extracted.name,
+                'email': extracted.email,
+                'alternate_email': extracted.alternate_email,
+                'organization_name': extracted.organization_name,
+                'organization_sector': extracted.organization_sector,
+                'num_premium_users': extracted.num_premium_users,
+                'license_length_years': extracted.license_length_years,
+                'institution_name': extracted.institution_name,
+                'admin_name': extracted.admin_name,
+                'admin_email': extracted.admin_email,
+                'billing_name': extracted.billing_name,
+                'billing_email': extracted.billing_email,
+                'billing_address': extracted.billing_address,
+                'shipping_address': extracted.shipping_address,
+                'vat_tax_id': extracted.vat_tax_id,
+                'user_names_emails': extracted.user_names_emails
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
+
 @app.route('/submit', methods=['POST'])
 def submit():
+    """Submit the reviewed data to the form"""
     message = request.form.get('message', '')
     
     try:
