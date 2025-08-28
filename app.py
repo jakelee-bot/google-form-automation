@@ -5,7 +5,7 @@ import os
 from src.form_automation import GoogleFormBot
 from src.parser_only import MessageParser
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
@@ -347,9 +347,8 @@ HTML_TEMPLATE = '''
     
     <div class="container">
         <div class="logo">
-            <div class="logo-icon">B</div>
-            <div class="logo-text">Form Automation</div>
-        </div>
+    <img src="/static/images/biorender-logo.png" alt="BioRender" style="height: 56px; width: auto;">
+</div>
         
         <div class="card">
             <!-- Step 1: Input Email -->
