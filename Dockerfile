@@ -8,6 +8,7 @@ RUN pip install -r requirements.txt
 
 # Copy the rest of the application
 COPY . .
+RUN mkdir -p static/images
 
 # Install Playwright browsers (already included in the base image)
 RUN playwright install chromium

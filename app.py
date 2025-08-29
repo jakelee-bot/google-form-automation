@@ -347,10 +347,8 @@ HTML_TEMPLATE = '''
     
     <div class="container">
         <div class="logo">
-    <div style="background: white; padding: 12px; border-radius: 12px; display: inline-block;">
-        <svg width="140" height="40" viewBox="0 0 200 60" style="display: block;">
-            <text x="0" y="45" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#1976D2">bioRender</text>
-        </svg>
+    <div style="background: rgba(255, 255, 255, 0.05); padding: 16px 24px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08);">
+        <img src="/static/images/biorender-logo.png" alt="BioRender" style="height: 50px; width: auto;">
     </div>
 </div>
         
