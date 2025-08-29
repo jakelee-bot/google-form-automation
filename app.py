@@ -347,7 +347,9 @@ HTML_TEMPLATE = '''
     
     <div class="container">
         <div class="logo">
-    <img src="/static/images/biorender-logo.png" alt="BioRender" style="height: 56px; width: auto;">
+    <div style="background: white; padding: 12px; border-radius: 12px; display: inline-block;">
+        <img src="/static/images/biorender-logo.png" alt="BioRender" style="height: 40px; width: auto;">
+    </div>
 </div>
         
         <div class="card">
