@@ -642,7 +642,7 @@ HTML_TEMPLATE = '''
         
         return lines.join('\n');
     }
-    </script>    <!-- Make sure this closing tag exists -->
+    </script>
 </body>
 </html>
 '''
