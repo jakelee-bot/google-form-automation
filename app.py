@@ -516,133 +516,11 @@ HTML_TEMPLATE = '''
     
     <script>
     function showStep(stepNumber) {
-        document.querySelectorAll(".step").forEach(step => {
-            step.classList.add("hidden");
+        document.querySelectorAll('.step').forEach(step => {
+            step.classList.add('hidden');
         });
-        document.getElementById("step" + stepNumber).classList.remove("hidden");
+        document.getElementById('step' + stepNumber).classList.remove('hidden');
     }
-    
-    async function parseEmail() {
-        const emailContent = document.getElementById("emailInput").value;
-        
-        if (!emailContent.trim()) {
-            alert("Please paste an email to extract information from.");
-            return;
-        }
-        
-        // Show loading
-        showStep(3);
-        
-        try {
-            const response = await fetch("/parse", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: emailContent })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                // Populate form fields with extracted data
-                populateForm(data.data);
-                showStep(2);
-            } else {
-                alert("Failed to parse email: " + data.error);
-                showStep(1);
-            }
-        } catch (error) {
-            alert("Error: " + error.message);
-            showStep(1);
-        }
-    }
-    
-    function populateForm(data) {
-        // Populate all form fields with extracted data
-        for (const [key, value] of Object.entries(data)) {
-            const field = document.getElementById(key);
-            if (field) {
-                field.value = value || "";
-            }
-        }
-    }
-    
-    function goBack() {
-        showStep(1);
-    }
-    
-    function startOver() {
-        document.getElementById("emailInput").value = "";
-        document.getElementById("reviewForm").reset();
-        showStep(1);
-    }
-    
-    // Handle form submission
-    document.getElementById("reviewForm").addEventListener("submit", async function(e) {
-        e.preventDefault();
-        
-        // Collect all form data
-        const formData = new FormData(this);
-        const data = Object.fromEntries(formData);
-        
-        // Build the structured message
-        const message = buildFormMessage(data);
-        
-        // Show processing
-        showStep(3);
-        
-        try {
-            const response = await fetch("/submit", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "message=" + encodeURIComponent(message)
-            });
-            
-            const html = await response.text();
-            
-            // Extract success/error message from response
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, "text/html");
-            const alert = doc.querySelector(".alert");
-            
-            if (alert) {
-                document.getElementById("resultMessage").innerHTML = alert.outerHTML;
-            } else {
-                document.getElementById("resultMessage").innerHTML = 
-                    "<div class=\\"alert alert-success\\">Form submitted successfully!</div>";
-            }
-            
-            showStep(4);
-        } catch (error) {
-            document.getElementById("resultMessage").innerHTML = 
-                "<div class=\\"alert alert-error\\">Error: " + error.message + "</div>";
-            showStep(4);
-        }
-    });
-    
-    function buildFormMessage(data) {
-        // Build structured message from form data
-        const lines = [];
-        
-        if (data.name) lines.push("Your name: " + data.name);
-        if (data.email) lines.push("Your email: " + data.email);
-        if (data.alternate_email) lines.push("Alternate email: " + data.alternate_email);
-        if (data.organization_name) lines.push("Organization name: " + data.organization_name);
-        if (data.organization_sector) lines.push("Organization sector: " + data.organization_sector);
-        if (data.num_premium_users) lines.push("How many people need Premium access?: " + data.num_premium_users);
-        if (data.license_length_years) lines.push("Length of license (in years): " + data.license_length_years);
-        if (data.institution_name) lines.push("Name of institution: " + data.institution_name);
-        if (data.user_names_emails) lines.push("Names and emails of intended users: " + data.user_names_emails);
-        if (data.admin_name) lines.push("Admin name: " + data.admin_name);
-        if (data.admin_email) lines.push("Admin email: " + data.admin_email);
-        if (data.billing_name) lines.push("Billing name: " + data.billing_name);
-        if (data.billing_email) lines.push("Billing email: " + data.billing_email);
-        if (data.billing_address) lines.push("Billing address: " + data.billing_address);
-        if (data.shipping_address) lines.push("Shipping address: " + data.shipping_address);
-        if (data.vat_tax_id) lines.push("VAT or Tax ID number: " + data.vat_tax_id);
-        
-        return lines.join("\\n");
-    }
-    </script>
     
     async function parseEmail() {
         const emailContent = document.getElementById('emailInput').value;
@@ -764,7 +642,7 @@ HTML_TEMPLATE = '''
         
         return lines.join('\n');
     }
-    </script>
+    </script>    <!-- Make sure this closing tag exists -->
 </body>
 </html>
 '''
