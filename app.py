@@ -640,7 +640,7 @@ HTML_TEMPLATE = '''
         if (data.shipping_address) lines.push('Shipping address: ' + data.shipping_address);
         if (data.vat_tax_id) lines.push('VAT or Tax ID number: ' + data.vat_tax_id);
         
-        return lines.join('\n');
+        return lines.join('\\n');
     }
     </script>
 </body>
