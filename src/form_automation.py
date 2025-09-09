@@ -156,20 +156,24 @@ class GoogleFormBot:
             return False
 
         try:
-            # Primary submit button
-            submit_button = self.page.locator('span:has-text("Submit")').first
-            if await submit_button.is_visible():
-                await submit_button.click(timeout=10000)
-                logger.info("✓ Clicked Submit button")
-                return True
-            else:
-                # Fallback if the main button isn't found
-                fallback_button = self.page.get_by_role("button", name="Submit")
-                if await fallback_button.is_visible():
-                    await fallback_button.click(timeout=10000)
-                    logger.info("✓ Clicked Submit (fallback)")
+            # Try multiple possible submit button texts
+            button_texts = ["Submit", "Request Quote", "Send", "Finish", "Done", "Request a Quote"]
+            
+            for text in button_texts:
+                submit_button = self.page.locator(f'span:has-text("{text}")').first
+                if await submit_button.is_visible():
+                    await submit_button.click(timeout=10000)
+                    logger.info(f"✓ Clicked {text} button")
                     return True
-
+            
+            # Also try role-based selection with different texts
+            for text in button_texts:
+                role_button = self.page.get_by_role("button", name=text)
+                if await role_button.is_visible():
+                    await role_button.click(timeout=10000)
+                    logger.info(f"✓ Clicked {text} button (role-based)")
+                    return True
+            
             logger.warning("Could not find a visible submit button")
             return False
         except Exception as e:
@@ -182,6 +186,21 @@ class GoogleFormBot:
             return
 
         logger.info(f"\n--- DEBUG: {page_name} form elements ---")
+        
+        # Try to find any heading to identify the page
+        try:
+            heading = await self.page.locator('div[role="heading"]').first.text_content()
+            logger.info(f"Page heading: {heading}")
+        except:
+            pass
+        
+        # Check for any visible text that might identify the page
+        try:
+            page_text = await self.page.locator('div[role="list"]').first.text_content()
+            logger.info(f"Page content preview: {page_text[:100]}...")
+        except:
+            pass
+        
         await self.page.screenshot(path=f"quote-bot/page_{page_name.split()[1]}_debug.png")
         logger.info(f"Screenshot saved as page_{page_name.split()[1]}_debug.png")
 
@@ -412,7 +431,17 @@ class GoogleFormBot:
         
         await self.wait_for_user_input("Page 3 completed. Please verify both dropdowns are filled.")
         
-        return await self.click_next_button()
+        # Try clicking Next twice for Page 3
+        logger.info("Clicking Next button (first attempt)...")
+        success = await self.click_next_button()
+        
+        if success:
+            # Wait a bit and click again
+            await asyncio.sleep(2)
+            logger.info("Clicking Next button again (Page 3 sometimes requires double-click)...")
+            await self.click_next_button()
+        
+        return success
 
     async def fill_page_4(self, data: FormData) -> bool:
         """Fill Page 4 fields - Institution name, Admin name, Admin email (all optional)"""

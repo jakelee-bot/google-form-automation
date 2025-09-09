@@ -693,23 +693,39 @@ def submit():
     """Submit the reviewed data to the form"""
     message = request.form.get('message', '')
     
+    print(f"\n=== SUBMIT ENDPOINT CALLED ===")
+    print(f"Message received: {message[:100]}...")  # First 100 chars
+    
     try:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         
         async def run_automation():
+            print("Creating bot instance...")
             bot = GoogleFormBot(headless=True, page_by_page=False)
+            
             try:
+                print("Setting up browser...")
                 await bot.setup()
+                
+                print("Running automation...")
                 await bot.run_automation(message)
+                
+                print("Cleaning up...")
                 await bot.cleanup()
+                
                 return True, "Successfully submitted! Your form has been filled automatically."
             except Exception as e:
-                print(f"Automation error: {str(e)}")
+                print(f"ERROR in automation: {type(e).__name__}: {str(e)}")
+                import traceback
+                traceback.print_exc()
                 return False, f"Something went wrong: {str(e)}"
         
+        print("Starting event loop...")
         success, status = loop.run_until_complete(run_automation())
         loop.close()
+        
+        print(f"Result: Success={success}, Status={status}")
         
         return render_template_string(
             HTML_TEMPLATE, 
@@ -717,7 +733,10 @@ def submit():
             status_type='success' if success else 'error'
         )
     except Exception as e:
-        print(f"Route error: {str(e)}")
+        print(f"ERROR in route: {type(e).__name__}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
         return render_template_string(
             HTML_TEMPLATE, 
             status=f"System error: {str(e)}",
