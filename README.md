@@ -1,18 +1,22 @@
-# Google Form Automation Bot
+echo "# Google Form Automation Bot
 
-Automates filling out Google Forms using Playwright based on structured or unstructured text input.
+A Python bot that extracts data from emails and automatically fills Google Forms using Playwright and Flask.
 
 ## Features
+- Extracts structured data from email text
+- Automatically navigates and fills multi-page Google Forms
+- Web interface for data review before submission
+- Deployed on Railway
 
-- Parses both structured and unstructured messages
-- Handles multi-page Google Forms with conditional logic
-- Supports different user counts (1, 2, or 5+ users)
-- Validates required fields before submission
-- Provides detailed logging and error handling
+## Tech Stack
+- Python with Playwright for browser automation
+- Flask for web interface
+- Railway for deployment
 
-## Local Setup
+## Setup
+1. Install requirements: \`pip install -r requirements.txt\`
+2. Set environment variables for any API keys
+3. Run: \`python app.py\`
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/google-form-automation.git
-cd google-form-automation
+## Deployment
+Currently deployed at: https://google-form-automation-production.up.railway.app/" > README.md
