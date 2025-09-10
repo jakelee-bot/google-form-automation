@@ -35,8 +35,9 @@ class MessageParser:
     """Enhanced parser with better field matching"""
     
     def __init__(self):
-        # Define exact field mappings
+        # Define exact field mappings - now includes both formats
         self.field_mappings = {
+            # Original format mappings
             'your name': 'name',
             'your email': 'email',
             'alternate email': 'alternate_email',
@@ -53,7 +54,15 @@ class MessageParser:
             'billing address': 'billing_address',
             'shipping address': 'shipping_address',
             'vat or tax id': 'vat_tax_id',
-            'vat or tax id number': 'vat_tax_id'
+            'vat or tax id number': 'vat_tax_id',
+            
+            # New format mappings
+            'full name': 'name',
+            'email address': 'email',
+            'license type': 'organization_sector',
+            'name of your institution': 'organization_name',
+            'number of individuals the license is intended for': 'num_premium_users',
+            'license length': 'license_length_years'
         }
     
     def extract_data(self, message: str) -> FormData:
@@ -67,22 +76,39 @@ class MessageParser:
         lines = message.split('\n')
         
         for i, line in enumerate(lines):
-            if ':' not in line:
+            # Skip empty lines
+            if not line.strip():
                 continue
+            
+            # Try to detect delimiter (: or -)
+            delimiter = None
+            if ':' in line:
+                delimiter = ':'
+            elif ' - ' in line:  # Look for dash with spaces
+                delimiter = ' - '
+            else:
+                continue
+            
+            # Split on delimiter
+            if delimiter == ' - ':
+                parts = line.split(' - ', 1)
+            else:
+                parts = line.split(':', 1)
                 
-            # Split on first colon
-            parts = line.split(':', 1)
             if len(parts) != 2:
                 continue
                 
             key = parts[0].strip().lower()
             value = parts[1].strip()
             
+            # Remove asterisks and bullets from key
+            key = key.lstrip('*').strip()
+            
             # Skip empty values
             if not value:
                 continue
-            
-            # Remove optional indicators and parenthetical content
+                
+            # Remove optional indicators and parenthetical content from key
             key_clean = re.sub(r'\s*\([^)]*\)', '', key)
             key_clean = key_clean.strip().rstrip('?')
             
@@ -97,10 +123,14 @@ class MessageParser:
                 # Special handling for specific fields
                 if field_name == 'organization_sector':
                     value_lower = value.lower()
-                    if 'acad' in value_lower or 'university' in value_lower or 'college' in value_lower:
+                    # Check for academic indicators
+                    if any(word in value_lower for word in ['acad', 'university', 'college', 'edu']):
                         setattr(data, field_name, 'Academic')
-                    else:
+                    elif 'industry' in value_lower or 'commercial' in value_lower:
                         setattr(data, field_name, 'Industry')
+                    else:
+                        # Default based on presence of keywords
+                        setattr(data, field_name, 'Academic' if 'academic' in value_lower else 'Industry')
                 elif field_name == 'num_premium_users':
                     # Extract number
                     numbers = re.findall(r'\d+', value)
@@ -115,6 +145,9 @@ class MessageParser:
                     numbers = re.findall(r'\d+', value)
                     if numbers:
                         setattr(data, field_name, int(numbers[0]))
+                    else:
+                        # Default to 1 if not specified
+                        setattr(data, field_name, 1)
                 else:
                     setattr(data, field_name, value)
                 
@@ -140,6 +173,10 @@ class MessageParser:
         # Extract individual users for 1-2 person licenses
         if data.user_names_emails and data.num_premium_users <= 2:
             self._extract_individual_users(data)
+        
+        # Set default license length if not specified
+        if not data.license_length_years:
+            data.license_length_years = 1
                     
     def _normalize_key(self, key: str) -> str:
         """Normalize a key for matching by removing special characters and lowercasing."""
@@ -215,3 +252,26 @@ class MessageParser:
                         data.second_user_name = name_match.group(1).strip()
                         logger.info(f"Extracted second user: {data.second_user_name} <{data.second_user_email}>")
                     break
+
+
+# Test with the new format
+if __name__ == "__main__":
+    test_message = """
+* Full Name - Victoria Lydick
+* Email Address - vilydick@iu.edu
+* License type: Academic or Industry - Individual Academic 
+* Name of your Institution - Indiana University
+* Number of individuals the license is intended for - 1
+* Preferred method of payment (Credit Card, Wire Transfer, Purchase Order) - PO
+"""
+    
+    parser = MessageParser()
+    data = parser.extract_data(test_message)
+    
+    print(f"Name: {data.name}")
+    print(f"Email: {data.email}")
+    print(f"Organization Name: {data.organization_name}")
+    print(f"Organization Sector: {data.organization_sector}")
+    print(f"Institution Name: {data.institution_name}")
+    print(f"Number of Premium Users: {data.num_premium_users}")
+    print(f"License Length (years): {data.license_length_years}")
