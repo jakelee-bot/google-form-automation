@@ -31,6 +31,15 @@ class FormData:
         self.second_user_name = ""
         self.second_user_email = ""
 
+    # Add this property to alias number_of_users to num_premium_users
+    @property
+    def number_of_users(self):
+        return self.num_premium_users
+    
+    @number_of_users.setter
+    def number_of_users(self, value):
+        self.num_premium_users = value
+
 class MessageParser:
     """Enhanced parser with better field matching"""
     
@@ -253,25 +262,3 @@ class MessageParser:
                         logger.info(f"Extracted second user: {data.second_user_name} <{data.second_user_email}>")
                     break
 
-
-# Test with the new format
-if __name__ == "__main__":
-    test_message = """
-* Full Name - Victoria Lydick
-* Email Address - vilydick@iu.edu
-* License type: Academic or Industry - Individual Academic 
-* Name of your Institution - Indiana University
-* Number of individuals the license is intended for - 1
-* Preferred method of payment (Credit Card, Wire Transfer, Purchase Order) - PO
-"""
-    
-    parser = MessageParser()
-    data = parser.extract_data(test_message)
-    
-    print(f"Name: {data.name}")
-    print(f"Email: {data.email}")
-    print(f"Organization Name: {data.organization_name}")
-    print(f"Organization Sector: {data.organization_sector}")
-    print(f"Institution Name: {data.institution_name}")
-    print(f"Number of Premium Users: {data.num_premium_users}")
-    print(f"License Length (years): {data.license_length_years}")
