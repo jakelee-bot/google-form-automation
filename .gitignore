@@ -1,40 +1,13 @@
 # Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
+*.pyc
+
+# Virtual env
 venv/
-ENV/
-.venv/
 
-# Logs
-*.log
+# Logs and screenshots
 logs/
-form_automation.log
-
-# Screenshots
-*.png
 screenshots/
-debug_*.png
-error_screenshot.png
-quote-bot/
 
-# Environment variables
+# Secrets
 .env
-.env.local
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Vercel
-.vercel

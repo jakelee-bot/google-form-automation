@@ -29,6 +29,14 @@ except ImportError:
                     self.vat_tax_id = ""
             return Data()
 
+# Optional normalizer import with safe fallback
+try:
+    from src.normalizer import normalize_email_text
+except Exception:
+    def normalize_email_text(text: str) -> str:
+        return text
+
+
 def handler(request):
     """Vercel serverless function handler."""
     
@@ -51,6 +59,9 @@ def handler(request):
         # Parse request
         body = json.loads(request.body or '{}')
         message = body.get('message', '')
+        
+        # Pre-normalize message when available
+        message = normalize_email_text(message)
         
         # Parse the message
         parser = MessageParser()

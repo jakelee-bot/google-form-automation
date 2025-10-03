@@ -145,7 +145,7 @@ class MessageParser:
                     numbers = re.findall(r'\d+', value)
                     if numbers:
                         num_users = int(numbers[0])
-                        # Round 3-4 to 5
+                        # Coerce 3-4 license requests to 5
                         if 3 <= num_users <= 4:
                             num_users = 5
                         setattr(data, field_name, num_users)

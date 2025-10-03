@@ -18,5 +18,7 @@ A Python bot that extracts data from emails and automatically fills Google Forms
 2. Set environment variables for any API keys
 3. Run: \`python app.py\`
 
-## Deployment
-Currently deployed at: https://google-form-automation-production.up.railway.app/" > README.md
+## Live Demo
+🚀 **Live at**: https://google-form-automation-production.up.railway.app/
+
+The bot is currently deployed and running on Railway

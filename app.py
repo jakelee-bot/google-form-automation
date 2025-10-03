@@ -4,6 +4,7 @@ import json
 import os
 from src.form_automation import GoogleFormBot
 from src.parser_only import MessageParser
+from src.normalizer import normalize_email_text
 
 app = Flask(__name__, static_folder='static')
 
@@ -658,8 +659,23 @@ def parse():
         data = request.get_json()
         message = data.get('message', '')
         
+        print(f"\n=== DEBUG: Original message ===")
+        print(f"Message: {message[:200]}...")
+        
+        normalized_message = normalize_email_text(message)
+        
+        print(f"\n=== DEBUG: Normalized message ===")
+        print(f"Normalized: {normalized_message[:200]}...")
+        
         parser = MessageParser()
-        extracted = parser.extract_data(message)
+        extracted = parser.extract_data(normalized_message)
+        
+        print(f"\n=== DEBUG: Extracted data ===")
+        print(f"Name: '{extracted.name}'")
+        print(f"Email: '{extracted.email}'")
+        print(f"Organization: '{extracted.organization_name}'")
+        print(f"Premium Users: '{extracted.num_premium_users}'")
+        print(f"License Length: '{extracted.license_length_years}'")
         
         return jsonify({
             'success': True,
@@ -683,6 +699,11 @@ def parse():
             }
         })
     except Exception as e:
+        print(f"\n=== DEBUG: Error ===")
+        print(f"Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
         return jsonify({
             'success': False,
             'error': str(e)
@@ -748,3 +769,59 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
     print(f"Starting server on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
+
+#Debugging
+@app.route('/parse', methods=['POST'])
+def parse():
+    """Parse email content and extract form data"""
+    try:
+        data = request.get_json()
+        message = data.get('message', '')
+        
+        print(f"\n=== DEBUG: Original message ===")
+        print(f"Message: {message[:200]}...")
+        
+        normalized_message = normalize_email_text(message)
+        
+        print(f"\n=== DEBUG: Normalized message ===")
+        print(f"Normalized: {normalized_message[:200]}...")
+        
+        parser = MessageParser()
+        extracted = parser.extract_data(normalized_message)
+        
+        print(f"\n=== DEBUG: Extracted data ===")
+        print(f"Name: '{extracted.name}'")
+        print(f"Email: '{extracted.email}'")
+        print(f"Organization: '{extracted.organization_name}'")
+        
+        return jsonify({
+            'success': True,
+            'data': {
+                'name': extracted.name,
+                'email': extracted.email,
+                'alternate_email': extracted.alternate_email,
+                'organization_name': extracted.organization_name,
+                'organization_sector': extracted.organization_sector,
+                'num_premium_users': extracted.num_premium_users,
+                'license_length_years': extracted.license_length_years,
+                'institution_name': extracted.institution_name,
+                'admin_name': extracted.admin_name,
+                'admin_email': extracted.admin_email,
+                'billing_name': extracted.billing_name,
+                'billing_email': extracted.billing_email,
+                'billing_address': extracted.billing_address,
+                'shipping_address': extracted.shipping_address,
+                'vat_tax_id': extracted.vat_tax_id,
+                'user_names_emails': extracted.user_names_emails
+            }
+        })
+    except Exception as e:
+        print(f"\n=== DEBUG: Error ===")
+        print(f"Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })

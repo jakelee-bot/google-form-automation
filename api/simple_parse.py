@@ -1,4 +1,15 @@
 import json
+import sys
+import os
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+# Optional normalizer import with safe fallback
+try:
+    from src.normalizer import normalize_email_text
+except Exception:
+    def normalize_email_text(text: str) -> str:
+        return text
 
 def handler(request):
     """Simple parser without external dependencies."""
@@ -16,6 +27,8 @@ def handler(request):
     try:
         body = json.loads(request.body)
         message = body.get('message', '')
+        # Pre-normalize when available
+        message = normalize_email_text(message)
         
         # Simple extraction logic
         data = {}
@@ -37,7 +50,11 @@ def handler(request):
                     data['organization_sector'] = value
                 elif 'how many' in key or 'number' in key:
                     try:
-                        data['num_premium_users'] = int(''.join(filter(str.isdigit, value)))
+                        num = int(''.join(filter(str.isdigit, value)))
+                        # Coerce 3-4 license requests to 5
+                        if 3 <= num <= 4:
+                            num = 5
+                        data['num_premium_users'] = num
                     except:
                         data['num_premium_users'] = 1
                 elif 'length' in key and 'license' in key:
